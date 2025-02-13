@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Mood App</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f1f1f1; /* Light background for daytime */
+            color: #333;
+            transition: background 1s ease, color 1s ease;
+            overflow: hidden;
+            position: relative; /* So stars can be positioned */
+        }
+
+        /* Home Page Container */
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            animation: fadeIn 1s ease-out;
+            z-index: 3; /* Keep the container above other elements */
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input {
+            padding: 14px;
+            font-size: 1.2rem;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 330px;
+            margin-bottom: 25px;
+            transition: border-color 0.3s ease;
+            background: #fafafa;
+            color: #333;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #007BFF;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .weather-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+
+        /* Daytime Background */
+        .day-background {
+            background: linear-gradient(to bottom, #87CEEB, #f0f0f0); /* Sky Blue to Light */
+            transition: background 1s ease;
+        }
+
+        /* Nighttime Background */
+        .night-background {
+            background: linear-gradient(to bottom, #2c3e50, #34495e); /* Dark Blue to Night */
+            transition: background 1s ease;
+        }
+
+        /* Sun Icon with Animation */
+        .sun-icon {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #FFEB3B, #FF9800);
+            border-radius: 50%;
+            box-shadow: 0 0 60px rgba(255, 223, 0, 0.8);
+            animation: sunAnimation 5s ease-in-out infinite;
+            z-index: 2;
+            display: none;
+        }
+
+        @keyframes sunAnimation {
+            0% {
+                transform: translateX(-50%) translateY(0);
+                box-shadow: 0 0 60px rgba(255, 223, 0, 0.8);
+            }
+            100% {
+                transform: translateX(-50%) translateY(20px);
+                box-shadow: 0 0 100px rgba(255, 223, 0, 1);
+            }
+        }
+
+        /* Moon Icon with Animation */
+        .moon-icon {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #F2F2F2, #9e9e9e);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            animation: moonAnimation 6s ease-in-out infinite;
+            z-index: 2;
+            display: none;
+        }
+
+        @keyframes moonAnimation {
+            0% {
+                transform: translateX(-50%) translateY(0);
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+            }
+            100% {
+                transform: translateX(-50%) translateY(15px);
+                box-shadow: 0 0 60px rgba(255, 255, 255, 1);
+            }
+        }
+
+        /* Clouds in Background */
+        .clouds {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateX(-100%);
+            width: 250px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: cloudMovement 15s linear infinite;
+            z-index: 0;
+        }
+
+        .clouds::before,
+        .clouds::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .clouds::before {
+            width: 180px;
+            height: 80px;
+            top: 0;
+            left: -30px;
+        }
+
+        .clouds::after {
+            width: 160px;
+            height: 90px;
+            top: -20px;
+            right: -40px;
+        }
+
+        @keyframes cloudMovement {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Glowing Stars */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            display: none; /* Hidden by default, will be shown at night */
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: starGlow 3s infinite ease-in-out;
+        }
+
+        @keyframes starGlow {
+            0% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+        }
+
+        /* Star Interaction */
+        .star:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            button {
+                width: 100%;
+                font-size: 1rem;
+            }
+
+            input {
+                width: 100%;
+            }
+        }
+
+        /* Hourly Forecast */
+        .hourly-forecast {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .hour {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hour img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .hour p {
+            font-size: 1rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sky Mood App</h1>
+        <input type="text" id="city" placeholder="Enter city name">
+        <button onclick="getWeather()">Get Weather</button>
+        <div id="result" class="result hidden">
+            <div id="weatherIconContainer"></div>
+            <p id="condition"></p>
+            <p id="temperature"></p>
+            <p id="hourlyForecast"></p>
+            <div class="hourly-forecast" id="hourlyForecastContainer"></div>
+            <button onclick="toggleUnits()">Toggle °C/°F</button>
+        </div>
+    </div>
+
+    <div class="sun-icon" id="sunIcon"></div>
+    <div class="moon-icon" id="moonIcon"></div>
+
+    <div class="clouds"></div>
+    <div class="clouds" style="animation: cloudMovement 18s linear infinite;"></div>
+    <div class="clouds" style="animation: cloudMovement 20s linear infinite;"></div>
+
+    <div class="stars" id="stars"></div>
+
+    <script>
+        const API_KEY = "bd5e378503939ddaee76f12ad7a97608"; // Your actual API key
+        let isCelsius = true; // Default unit is Celsius
+
+        // Function to detect day or night
+        function detectTimeOfDay() {
+            const hours = new Date().getHours();
+            return hours >= 6 && hours < 18 ? "day" : "night";
+        }
+
+        // Set initial background and icons based on time of day
+        function setInitialBackground() {
+            const body = document.body;
+            const sunIcon = document.getElementById("sunIcon");
+            const moonIcon = document.getElementById("moonIcon");
+            const stars = document.getElementById("stars");
+            const clouds = document.querySelectorAll('.clouds');
+            const timeOfDay = detectTimeOfDay();
+            
+            if (timeOfDay === "day") {
+                body.classList.add("day-background");
+                body.classList.remove("night-background");
+                sunIcon.style.display = "block";
+                moonIcon.style.display = "none";
+                stars.style.display = "none"; // Hide stars during the day
+                clouds.forEach(cloud => cloud.style.animation = "cloudMovement 15s linear infinite");
+            } else {
+                body.classList.add("night-background");
+                body.classList.remove("day-background");
+                sunIcon.style.display = "none";
+                moonIcon.style.display = "block";
+                stars.style.display = "block"; // Show stars at night
+                addStars(); // Add stars dynamically
+                clouds.forEach(cloud => cloud.style.animation = "cloudMovement 25s linear infinite");
+            }
+        }
+
+        // Generate random stars for the night sky
+        function addStars() {
+            const starsContainer = document.getElementById("stars");
+            starsContainer.innerHTML = ''; // Clear existing stars
+
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement("div");
+                star.classList.add("star");
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDuration = `${Math.random() * 5 + 3}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Function to get weather data from the API
+        async function getWeather() {
+            const city = document.getElementById("city").value;
+            if (!city) {
+                alert("Please enter a city name.");
+                return;
+            }
+
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.cod !== 200) {
+                alert("City not found.");
+                return;
+            }
+
+            const weather = data.weather[0];
+            const main = data.main;
+            const hourlyData = await getHourlyForecast(data.coord.lat, data.coord.lon);
+
+            // Display main weather info
+            const weatherIconContainer = document.getElementById("weatherIconContainer");
+            const condition = document.getElementById("condition");
+            const temperature = document.getElementById("temperature");
+
+            weatherIconContainer.innerHTML = `<img src="http://openweathermap.org/img/w/${weather.icon}.png" class="weather-icon">`;
+            condition.textContent = weather.description;
+            temperature.textContent = `${main.temp}°C`;
+
+            // Display hourly forecast for next 5 hours
+            const hourlyForecastContainer = document.getElementById("hourlyForecastContainer");
+            hourlyForecastContainer.innerHTML = '';
+
+            hourlyData.forEach(hour => {
+                const hourElement = document.createElement("div");
+                hourElement.classList.add("hour");
+                const hourTime = new Date(hour.dt * 1000).getHours();
+                hourElement.innerHTML = `
+                    <img src="http://openweathermap.org/img/w/${hour.weather[0].icon}.png" class="weather-icon">
+                    <p>${hourTime}:00</p>
+                    <p>${hour.main.temp}°C</p>
+                `;
+                hourlyForecastContainer.appendChild(hourElement);
+            });
+
+            // Display result and background
+            document.getElementById("result").classList.remove("hidden");
+            setInitialBackground();
+        }
+
+        // Function to get hourly forecast data for the next 5 hours
+        async function getHourlyForecast(lat, lon) {
+            const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            return data.list.slice(0, 5); // Return the next 5 hours
+        }
+
+        // Toggle between Celsius and Fahrenheit
+        function toggleUnits() {
+            isCelsius = !isCelsius;
+            const temperatureElement = document.getElementById("temperature");
+            const hourlyForecastElements = document.querySelectorAll(".hour p");
+
+            if (isCelsius) {
+                temperatureElement.textContent = `${temperatureElement.textContent}°C`;
+                hourlyForecastElements.forEach(element => {
+                    const temp = parseFloat(element.textContent);
+                    element.textContent = `${((temp - 32) * 5 / 9).toFixed(1)}°C`;
+                });
+            } else {
+                temperatureElement.textContent = `${((parseFloat(temperatureElement.textContent) * 9 / 5) + 32).toFixed(1)}°F`;
+                hourlyForecastElements.forEach(element => {
+                    const temp = parseFloat(element.textContent);
+                    element.textContent = `${((temp * 9 / 5) + 32).toFixed(1)}°F`;
+                });
+            }
+        }
+
+        // Initial setup
+        setInitialBackground();
+    </script>
+</body>
+</html>
